@@ -1,0 +1,48 @@
+Running Teyze GDD
+
+1- GENRE:
+Running Teyze is a platformer with rogue-like properties, where we try to raise a faction of "Teyze's" via food recipes, in a world invaded by a hostile alien race. 
+
+2-MECHANICS:
+	2.1 - PLATFORMER MECHANICS
+		Running Teyze is a tile based shooter - platformer game, where we can shoot projectiles, melee attacks, among other types of attacks (TBD). It should support basic jumping and scrolling screens. Furhter platformer mechanics are TBD.
+		
+	2.2 - LEVELING UP
+		While there is no strict "levels", each teyze has her own progress line. She has to cook a dish from a recipe, of which the ingredients are found from the "Pazar". Each meal yields a certain amount of skill points, which will be distributed.
+		
+		2.2.1 PAZAR
+			A "bazaar", the shop of the game. 
+			
+		2.2.2 RECIPE
+			A recipe is a list of ingredients required by a dish. Each recipe have a certain amount of points and rarity factor. Each teyze has a set of recipes, but can obtain new recipes via Golden Days and trades, or maybe other opportunities (TBD)
+			
+		2.2.3 INGREDIENTS 
+			Ingredients are litteraly food ingredients, like leaks or potatoes. Can be purchased from the Pazar with ingame currency. 
+			
+		
+		
+	2.3 RECRUITING
+		2.3.1 RECRUITMENT MECHANICS
+			Recruiting is the process of unlocking new Teyze's to play with. In order to recruit a Teyze, you have to convince her with recipies. 
+		2.3.2 STANDINGS
+			Each teyze has standings with other teyze's. if the average of the standings of recruited teyze's is low with the wanted teyze, she will be harder to recruit. Each teyze has a default recruitment difficulty.
+		2.3.3 REPUTATION
+			Each teyze has a reputation. The average reputation of the group reveals more teyze's to recruit in the recruitable teyze's list.
+		2.3.4 PAZAR SHOWDOWN
+			When shopping in the PAZAR, sometimes another teyze may shop at the same time. If both teyze's aim for the same ingredient, there is a 1v1 combat. If the player wins, she gets the ingredient, but loses standing points with the rival teyze. If she loses, reputation is lost, but the ingredient can't be bought. An option to refuse the showdown is possible, where no reputation is lost, but the ingredient can't be bought.
+		
+	2.4 GOLDEN DAY
+		Golden day is a kind of lootbox, where it is possible to get currency, recipes, or standing improvement bonuses.
+	
+3- CURRENCY
+	Currency is plain money. Teyze's have two kinds of money: 
+		-Savings (stocked money as a property of the teyze)
+		-Retirment salary - money coming on a regular basis.
+		(some teyze's have both, some one of the two, maybo some have none)
+		
+	3-1 CURRENCY UPGRADES
+		When leveling up, retirement salary can be upgraded. 
+	
+		
+		
+		
