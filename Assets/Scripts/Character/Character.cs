@@ -14,6 +14,8 @@ namespace RunningTeyze
         Rigidbody2D m_rigidBody;
         BoxCollider2D m_collider;
         Animator m_animator;
+        CharacterProps m_props;
+        public CharacterProps props { get { return m_props; } }
         #endregion
 
         #region INSPECTOR
@@ -36,10 +38,7 @@ namespace RunningTeyze
         [SerializeField]
         float m_groundDetectionRadius = 0.3f;
 
-        [Header("Gameplay Properties")]
-        [SerializeField]
-        CharacterProps m_props;
-        public CharacterProps props { get { return m_props; } }
+
 
         [Header("Debug")]
         [SerializeField]
@@ -59,6 +58,7 @@ namespace RunningTeyze
 
       
         //Ground checking
+        [SerializeField]
         bool m_isGrounded = false;
         public bool isGrounded { get { return m_isGrounded; } }
         bool m_proximityChecked = false;
@@ -68,6 +68,7 @@ namespace RunningTeyze
 
         //Positioning
         bool m_faceRight = true;
+        public Vector2 groundPosition { get { return new Vector2(m_collider.bounds.center.x, m_collider.bounds.min.y); } }
 
         //Contact Cache to check if we are grounded
         ContactPoint2D[] m_contactCache;
@@ -89,6 +90,7 @@ namespace RunningTeyze
             m_rigidBody.isKinematic = false;
             m_collider = GetComponent<BoxCollider2D>();
             m_animator = GetComponent<Animator>();
+            m_props = GetComponent<CharacterProps>();
             m_defaultGravityScale = m_rigidBody.gravityScale;
             m_contactCache = new ContactPoint2D[6];
         }
@@ -163,6 +165,8 @@ namespace RunningTeyze
         public void Jump()
         {
             if (!m_isGrounded) return;
+            if (Time.time - m_jumpTimeStamp < 0.1f) return;
+            Debug.Log("Jump");
             setVelY(m_jumpVelocity);
             m_jumpTimeStamp = Time.time;
             m_isGrounded = false;

@@ -24,6 +24,12 @@ namespace RunningTeyze
         [SerializeField]
         PROJECTILE_DESTROY_TYPE m_destroyType = PROJECTILE_DESTROY_TYPE.COLLISION;
 
+        [Header("Damage")]
+        [SerializeField]
+        DAMAGE_CHANNEL m_channel;
+        [SerializeField]
+        float m_damage = 1.0f;
+
         Rigidbody2D m_rigidBody;
 
         SFireProjectile m_owner;
@@ -39,8 +45,9 @@ namespace RunningTeyze
         {
             m_owner = owner;
         }
-        public  void Fire(Vector2 direction)
+        public  void Fire(Vector2 direction, DAMAGE_CHANNEL channel)
         {
+            m_channel = channel;
             Vector2 scale = transform.localScale;
             if (Vector2.Dot(direction, Vector2.right) < 0.0) scale.y *= -1.0f;
             transform.localScale = scale;
@@ -73,6 +80,14 @@ namespace RunningTeyze
 
         private void OnTriggerEnter2D(Collider2D other)
         {
+            DamageApplier applier = other.GetComponent<DamageApplier>();
+
+            if(applier != null)
+            {
+                float effectiveDmg = m_owner.dmgModifier * m_damage;
+                applier.ApplyDamage(effectiveDmg);
+            }
+
             if (m_destroyType == PROJECTILE_DESTROY_TYPE.COLLISION)
             {
                 if (other.tag != tag && other.gameObject != m_owner.gameObject)

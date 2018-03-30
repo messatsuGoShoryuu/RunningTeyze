@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace RunningTeyze
 {
+    [System.Serializable]
     public struct Hitpoints
     {
         public float maxHealth;
@@ -12,16 +13,41 @@ namespace RunningTeyze
         
     }
 
+    [System.Serializable]
     public struct DamageModifier
     {
-        float damageModifier;
-        float rateModifier;
+        public float damageModifier;
+        public float rateModifier;
     }
 
-    public struct CharacterProps
+    public class CharacterProps : MonoBehaviour
     {
-        public Hitpoints hitpoints;
-        public DamageModifier modifier;
+        [SerializeField]
+        private  Hitpoints m_hitpoints;
+        [HideInInspector]
+        public Hitpoints hitpoints { get { return m_hitpoints; } }
+        [SerializeField]
+        private   DamageModifier m_dmgModifier;
+        [HideInInspector]
+        public DamageModifier dmgModifier { get { return m_dmgModifier; } }
+
+        public delegate void HitpointsChanged(Hitpoints hp);
+        public HitpointsChanged OnHitpointsChanged;
+
+        public delegate void DmgModifierChanged(DamageModifier dmgModifier);
+        public DmgModifierChanged OnDmgModifierChanged;
+
+        public void SetHitpoints(Hitpoints hp)
+        {
+            m_hitpoints = hp;
+            if (OnHitpointsChanged != null) OnHitpointsChanged(hp);
+        }
+
+        public void SetDmgModifier(DamageModifier dmgModifier)
+        {
+            m_dmgModifier = dmgModifier;
+            if (OnDmgModifierChanged != null) OnDmgModifierChanged(dmgModifier);
+        }
     }
 
     public class CharacterPropOperations
@@ -30,7 +56,7 @@ namespace RunningTeyze
         {
             damage *= 1.0f - hp.resistance;
             hp.health -= damage;
-            hp.health = Mathf.Min(0.0f, hp.health);
+            hp.health = Mathf.Clamp(hp.health, 0.0f, hp.health);
             return hp.health == 0.0f;
         }
 
