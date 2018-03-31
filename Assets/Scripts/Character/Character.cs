@@ -166,7 +166,7 @@ namespace RunningTeyze
         {
             if (!m_isGrounded) return;
             if (Time.time - m_jumpTimeStamp < 0.1f) return;
-            Debug.Log("Jump");
+            
             setVelY(m_jumpVelocity);
             m_jumpTimeStamp = Time.time;
             m_isGrounded = false;

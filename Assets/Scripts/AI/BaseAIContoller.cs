@@ -15,7 +15,10 @@ namespace RunningTeyze
         [SerializeField]
         float m_characterWidth;
         [SerializeField]
-        float m_jumpDistance;
+        float m_jumpThreshold;
+        [SerializeField]
+        float m_maxJumpDistance;
+
         float m_minMoveDistanceSquare;
         Vector2 m_targetVector2;
 
@@ -32,6 +35,7 @@ namespace RunningTeyze
         bool m_isWaitingToBeGrounded = false;
 
         int m_nextPoint = 0;
+        bool m_waitingForPath = false;
 
         // Use this for initialization
         void Start()
@@ -69,6 +73,13 @@ namespace RunningTeyze
                 bool pathIsClear = AIPath.PathIsClear(GetComponent<Collider2D>(),
                     m_targetTransform);
 
+                if (pathIsClear)
+                {
+                    StopAllCoroutines();
+                    m_waitingForPath = false;
+                }
+                    
+
                 m_movementHorizontalOK = Mathf.Abs(dotX) < m_minMoveDistance && pathIsClear;
                 m_movementVerticalOK = Mathf.Abs(dotY) < m_minMoveDistance && pathIsClear;
 
@@ -84,11 +95,9 @@ namespace RunningTeyze
                 {
                     if (m_pathToFollow == null)
                     {
-                        if (m_character.isGrounded)
-                        {
-                            m_pathToFollow = AIPath.GetJumpingPoints(m_character.groundPosition, m_targetTransform.position, Vector2.one);
-                            m_nextPoint = 0;
-                        }
+                        m_pathToFollow = null;
+                        m_pathToFollow = AIPath.GetJumpingPoints(m_character.groundPosition, m_targetTransform.position, m_maxJumpDistance);
+                        m_nextPoint = 0;
                     }
                 }
                 else m_pathToFollow = null;
@@ -119,9 +128,8 @@ namespace RunningTeyze
                         {
 
 
-                            if (Vector2.Distance(m_character.groundPosition, m_pathToFollow[m_nextPoint]) >= m_jumpDistance)
+                            if (Vector2.Distance(m_character.groundPosition, m_pathToFollow[m_nextPoint]) >= m_jumpThreshold)
                             {
-                                Debug.Log("SHOULD JUMP!");
                                 m_pointBeforeJumping = m_nextPoint;
                                 m_character.Jump();
                                 m_isWaitingToBeGrounded = true;
@@ -133,18 +141,64 @@ namespace RunningTeyze
                         m_pathToFollow = null;
                         return;
                     }
-                    if (Vector2.Distance(m_character.groundPosition, m_pathToFollow[m_nextPoint]) < 1.2f)
+                    if (checkPointReached(0.2f, 1.0f, 0.2f))
                     {
                         m_nextPoint++;
                     }
+                    if(m_nextPoint>=m_pathToFollow.Length)
+                    {
+                        m_pathToFollow = null;
+                        return;
+                    }
                     direction = Mathf.Sign(m_pathToFollow[m_nextPoint].x - m_character.groundPosition.x);
-                    Debug.DrawRay(m_pathToFollow[m_nextPoint], Vector2.one, Color.green);
-                    AIPath.DrawDebug();
+                    drawRect(m_pathToFollow[m_nextPoint], Color.yellow);
+              //      AIPath.DrawDebug();
                 }
 
                 m_character.MoveHorizontal(direction);
 
             }
+        }
+
+        IEnumerator refreshPath()
+        {
+            m_waitingForPath = true;
+            yield return new WaitForSeconds(1.0f);
+            
+
+            bool pathIsClear = AIPath.PathIsClear(GetComponent<Collider2D>(),
+                   m_targetTransform);
+
+            if (!pathIsClear)
+            {
+                m_pathToFollow = null;
+                m_pathToFollow = AIPath.GetJumpingPoints(m_character.groundPosition, m_targetTransform.position, m_maxJumpDistance);
+                m_nextPoint = 0;
+                StartCoroutine(refreshPath());
+               
+            }
+            else m_waitingForPath = false;
+
+        }
+
+        void drawRect(Vector2 pos, Color color)
+        {
+            Vector2 first = pos - Vector2.one * 0.1f;
+            Debug.DrawRay(first, Vector2.right * 0.2f, color);
+            first += Vector2.right * 0.2f;
+            Debug.DrawRay(first, Vector2.up * 0.2f, color);
+            first += Vector2.up * 0.2f;
+            Debug.DrawRay(first, Vector2.left * 0.2f, color);
+            first += Vector2.left * 0.2f;
+            Debug.DrawRay(first, Vector2.down * 0.2f, color);
+        }
+
+        bool checkPointReached(float width, float height, float groundTolerance)
+        {
+            bool widthCheck = Mathf.Abs(m_character.groundPosition.x - m_pathToFollow[m_nextPoint].x) <= width * 0.5f;
+            bool heightCheck = Mathf.Abs(m_character.groundPosition.y - groundTolerance + height - m_pathToFollow[m_nextPoint].y) <= height + groundTolerance;
+
+            return widthCheck && heightCheck;
         }
 
         IEnumerator JumpWithDelay()

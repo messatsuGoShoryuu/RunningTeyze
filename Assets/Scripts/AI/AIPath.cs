@@ -37,30 +37,13 @@ namespace RunningTeyze
 
 
          public static Vector2[] GetJumpingPoints(Vector2 startPosition,
-            Vector2 target, Vector2 jumpDistance)
+            Vector2 target, float jumpDistance)
         {
-
-            Vector2[] rawPoints = astar.FindPath(startPosition, target);
-            if (rawPoints == null) return null;
             if (s_jumpingPoints == null) s_jumpingPoints = new List<Vector2>();
             s_jumpingPoints.Clear();
-
-            int max = rawPoints.Length - 1;
-            for(int i = 0; i<rawPoints.Length;i++)
-            {
-                if (i == 0 || i == max)
-                    s_jumpingPoints.Add(rawPoints[max - i]);
-                else if(i > 0 && i < max)
-                {
-                    Vector2 a = rawPoints[max - i] - rawPoints[max - (i - 1)];
-                    Vector2 b = rawPoints[max - (i + 1)] - rawPoints[max - i];
-
-                    if (Mathf.Abs(Vector2.Dot(a, b)) < 0.01f)
-                        s_jumpingPoints.Add(rawPoints[max - i]);
-                }
-
-                
-            }
+            Vector2[] range = astar.FindPath(startPosition, target, jumpDistance);
+            if(range != null)
+                s_jumpingPoints.AddRange(range);
             return s_jumpingPoints.ToArray();
         }
 
