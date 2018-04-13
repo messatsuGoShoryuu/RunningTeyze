@@ -28,7 +28,7 @@ namespace RunningTeyze
         [SerializeField]
         DAMAGE_CHANNEL m_channel;
         [SerializeField]
-        float m_damage = 1.0f;
+        Damage m_damage;
 
         Rigidbody2D m_rigidBody;
 
@@ -45,16 +45,20 @@ namespace RunningTeyze
         {
             m_owner = owner;
         }
-        public  void Fire(Vector2 direction, DAMAGE_CHANNEL channel)
+        public  void Fire(Vector2 direction, DAMAGE_CHANNEL channel, int ownerID, DamageModifier modifier)
         {
             m_channel = channel;
+            m_damage.ownerID = ownerID;
+
+            Damage.ApplyModifierToDamage(ref m_damage, ref modifier);
+
             Vector2 scale = transform.localScale;
             if (Vector2.Dot(direction, Vector2.right) < 0.0) scale.y *= -1.0f;
             transform.localScale = scale;
 
             if(m_rigidBody == null)
                 m_rigidBody = GetComponent<Rigidbody2D>();
-            m_rigidBody.velocity = direction * m_celerity;
+            m_rigidBody.velocity = direction * m_celerity * modifier.celerityModifier;
         }
 
         // Update is called once per frame
@@ -84,7 +88,7 @@ namespace RunningTeyze
 
             if(applier != null)
             {
-                float effectiveDmg = m_owner.dmgModifier * m_damage;
+                float effectiveDmg = m_owner.dmgModifier * m_damage.damage;
                 applier.ApplyDamage(effectiveDmg);
             }
 

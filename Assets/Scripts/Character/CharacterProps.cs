@@ -17,7 +17,12 @@ namespace RunningTeyze
     public struct DamageModifier
     {
         public float damageModifier;
-        public float rateModifier;
+        public float celerityModifier;
+        public float stunModifier;
+        public float knockbackModifier;
+        public float tickCooldownModifier;
+        public float tickCountModifier;
+        public float AOERadiusModifier;
     }
 
     public class CharacterProps : MonoBehaviour

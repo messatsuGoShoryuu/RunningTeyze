@@ -36,6 +36,8 @@ namespace RunningTeyze
 
         [Header("Navigation")]
         [SerializeField]
+        bool m_pauseGameplay = false;
+        [SerializeField]
         bool m_affectChildren = true;
         [SerializeField]
         bool m_affectParent = true;
@@ -90,6 +92,7 @@ namespace RunningTeyze
 
         public void Enable()
         {
+            if (m_pauseGameplay) Time.timeScale = 1.0f;
             if (m_shouldActivateHost) gameObject.SetActive(true);
             enabled = true;
             for (int i = 0; i < m_affectedObjects.Length; i++)
@@ -98,6 +101,7 @@ namespace RunningTeyze
 
         public void Disable()
         {
+            if (m_pauseGameplay) Time.timeScale = 0.0f;
             for (int i = 0; i < m_affectedObjects.Length; i++)
                 m_affectedObjects[i].enabled = false;
             if (m_shouldActivateHost) gameObject.SetActive(false);
@@ -135,7 +139,8 @@ namespace RunningTeyze
             {
                 if(Input.GetKeyDown(m_navigationMappings[i].keyCode))
                 {
-                    m_navigationMappings[i].mapper.Enable();
+                    if (m_navigationMappings[i].mapper == this) Disable();
+                    else m_navigationMappings[i].mapper.Enable();
                     break;
                 }
             }

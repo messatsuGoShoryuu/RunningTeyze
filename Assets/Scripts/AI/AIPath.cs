@@ -7,7 +7,7 @@ namespace RunningTeyze
 {
     public class AIPath
     {
-        static  List<Vector2> s_jumpingPoints;
+ 
         static Tilemap s_tileMap;
         static AStar s_aStar;
         static AStar astar
@@ -34,29 +34,33 @@ namespace RunningTeyze
             return hit[0].collider.transform == target;
         }
 
-
-
-         public static Vector2[] GetJumpingPoints(Vector2 startPosition,
-            Vector2 target, float jumpDistance)
+        public static bool PathIsClear(Collider2D startCollider, Vector2 position)
         {
-            if (s_jumpingPoints == null) s_jumpingPoints = new List<Vector2>();
-            s_jumpingPoints.Clear();
-            Vector2[] range = astar.FindPath(startPosition, target, jumpDistance);
-            if(range != null)
-                s_jumpingPoints.AddRange(range);
-            return s_jumpingPoints.ToArray();
+            Vector2 startPosition = startCollider.transform.position;
+            Vector2 ray = (Vector2)position - startPosition;
+
+            int layerMask = (1 << LayerMask.NameToLayer("Ground"));
+
+            RaycastHit2D[] hit = new RaycastHit2D[1];
+            startCollider.Raycast(ray * 0.8f, hit,layerMask);
+            Debug.DrawRay(startPosition, ray * 0.8f, Color.red);
+            return hit[0].collider == null;
         }
 
         public static void DrawDebug()
         {
-            for(int i = 0; i<s_jumpingPoints.Count;i++)
-            {
-                if (s_jumpingPoints.Count == 1)
-                    Debug.DrawRay(s_jumpingPoints[0], Vector2.up, Color.green);
-                else if(i < s_jumpingPoints.Count - 1)
-                    Debug.DrawLine(s_jumpingPoints[i], s_jumpingPoints[i + 1], Color.green);
-            }
+            astar.DrawDebug(Color.green);
         }
+
+        public static Vector2 realStart { get { return astar.realStart; } }
+
+
+         public static AStarPoint[] GetJumpingPoints(Vector2 startPosition,
+            Vector2 target, float jumpDistance)
+        {
+            return astar.FindPath(startPosition, target, jumpDistance);
+        }
+        
     }
 }
 

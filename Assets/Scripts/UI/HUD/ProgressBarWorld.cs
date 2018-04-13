@@ -18,13 +18,15 @@ namespace RunningTeyze.UI.HUD
         public float cutoutValue { get { return m_cutoutValue; } }
 
         // Use this for initialization
-        void Start()
+        void Awake()
         {
             m_renderer = GetComponent<SpriteRenderer>();
             m_renderer.material = new Material(m_renderer.material);
             m_renderer.material.SetTexture("_CutoutTex", m_cutout.texture);
             SetCutoutValue(m_cutoutValue, true);
         }
+
+        
 
         public override void SetCutoutValue(float value, bool ignoreLerp = false)
         {

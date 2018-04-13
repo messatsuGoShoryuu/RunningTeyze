@@ -22,7 +22,7 @@ namespace RunningTeyze
         float m_minMoveDistanceSquare;
         Vector2 m_targetVector2;
 
-        Vector2[] m_pathToFollow;
+        AStarPoint[] m_pathToFollow;
 
         int m_pointBeforeJumping;
 
@@ -36,6 +36,13 @@ namespace RunningTeyze
 
         int m_nextPoint = 0;
         bool m_waitingForPath = false;
+
+        float m_lastPathfindingTime = 0.0f;
+        float m_checkpointTime = 0.0f;
+        [SerializeField]
+        float m_checkpointCooldown = 1.5f;
+        [SerializeField]
+        float m_pathFindingCooldown = 4.0f;
 
         // Use this for initialization
         void Start()
@@ -72,12 +79,6 @@ namespace RunningTeyze
                 if (m_tileMap == null) m_tileMap = FindObjectOfType<Tilemap>();
                 bool pathIsClear = AIPath.PathIsClear(GetComponent<Collider2D>(),
                     m_targetTransform);
-
-                if (pathIsClear)
-                {
-                    StopAllCoroutines();
-                    m_waitingForPath = false;
-                }
                     
 
                 m_movementHorizontalOK = Mathf.Abs(dotX) < m_minMoveDistance && pathIsClear;
@@ -95,13 +96,21 @@ namespace RunningTeyze
                 {
                     if (m_pathToFollow == null)
                     {
-                        m_pathToFollow = null;
-                        m_pathToFollow = AIPath.GetJumpingPoints(m_character.groundPosition, m_targetTransform.position, m_maxJumpDistance);
+                        m_pathToFollow = AIPath.GetJumpingPoints(m_character.transform.position, m_targetTransform.position, m_maxJumpDistance);
                         m_nextPoint = 0;
+                        m_checkpointTime = Time.time;
+                        m_lastPathfindingTime = Time.time;
                     }
                 }
-                else m_pathToFollow = null;
 
+                if(Time.time-m_lastPathfindingTime >m_pathFindingCooldown)
+                {
+                    m_pathToFollow = null;
+                    m_nextPoint = 0;
+                }
+                
+
+               
                 if (m_pathToFollow != null && m_pathToFollow.Length > 0)
                 {
                     if (m_character.isGrounded)
@@ -117,46 +126,67 @@ namespace RunningTeyze
                             m_isWaitingToBeGrounded = false;
                         }
 
-                        if(m_nextPoint >= m_pathToFollow.Length)
+                        if(m_nextPoint <m_pathToFollow.Length)
                         {
-                            m_pathToFollow = null;
-                            return;
+                            direction = Mathf.Sign(m_pathToFollow[m_nextPoint].point.x - m_character.groundPosition.x);
                         }
-                        direction = Mathf.Sign(m_pathToFollow[m_nextPoint].x - m_character.groundPosition.x);
-                        Debug.DrawLine(m_character.groundPosition, m_pathToFollow[m_nextPoint], Color.yellow);
+                    }
+                    if (checkPointReached(0.2f, 1.0f, 0.2f))
+                    {
+                        m_nextPoint++;
+                        m_checkpointTime = Time.time;
+
                         if (m_nextPoint < m_pathToFollow.Length)
                         {
 
-
-                            if (Vector2.Distance(m_character.groundPosition, m_pathToFollow[m_nextPoint]) >= m_jumpThreshold)
+                            if (Vector2.Distance(m_character.groundPosition, m_pathToFollow[m_nextPoint].point) >= m_jumpThreshold)
                             {
                                 m_pointBeforeJumping = m_nextPoint;
                                 m_character.Jump();
                                 m_isWaitingToBeGrounded = true;
                             }
-                        }   
+                        }
                     }
-                    if(m_nextPoint >= m_pathToFollow.Length)
+                    else if(m_nextPoint <m_pathToFollow.Length)
                     {
-                        m_pathToFollow = null;
-                        return;
+                        if (m_pathToFollow[m_nextPoint].point.y - m_character.groundPosition.y > 0.5f && m_character.isGrounded && m_pathToFollow[m_nextPoint].jump == false)
+                        {
+                            m_character.Jump();
+                        }
                     }
-                    if (checkPointReached(0.2f, 1.0f, 0.2f))
+
+                    if(Time.time - m_checkpointTime> m_checkpointCooldown && m_nextPoint > 1)
                     {
-                        m_nextPoint++;
+                        m_nextPoint--;
+                        if (m_nextPoint < 0) m_nextPoint = 0;
+                        m_checkpointTime = Time.time;
                     }
-                    if(m_nextPoint>=m_pathToFollow.Length)
+           
+                    if (m_pathToFollow != null)
                     {
-                        m_pathToFollow = null;
-                        return;
+                        if (m_nextPoint >= m_pathToFollow.Length)
+                        {
+                            m_pathToFollow = null;
+                            return;
+                        }
                     }
-                    direction = Mathf.Sign(m_pathToFollow[m_nextPoint].x - m_character.groundPosition.x);
-                    drawRect(m_pathToFollow[m_nextPoint], Color.yellow);
-              //      AIPath.DrawDebug();
+                    else m_nextPoint = 0;
+                    if (m_pathToFollow != null)
+                    {
+                        direction = Mathf.Sign(m_pathToFollow[m_nextPoint].point.x - m_character.groundPosition.x);
+                        if (Mathf.Abs(m_character.groundPosition.x - m_pathToFollow[m_nextPoint].point.x) < m_characterWidth) direction = 0;
+                        if (m_pathToFollow[m_nextPoint].jump)
+                            drawRect(m_pathToFollow[m_nextPoint].point, Color.yellow);
+                        else if (m_pathToFollow[m_nextPoint].jump)
+                            drawRect(m_pathToFollow[m_nextPoint].point, Color.cyan);
+                        drawRect(AIPath.realStart, Color.red);
+                        AIPath.DrawDebug();
+                    }
                 }
 
-                m_character.MoveHorizontal(direction);
+                
 
+                m_character.MoveHorizontal(direction);
             }
         }
 
@@ -173,8 +203,9 @@ namespace RunningTeyze
             {
                 m_pathToFollow = null;
                 m_pathToFollow = AIPath.GetJumpingPoints(m_character.groundPosition, m_targetTransform.position, m_maxJumpDistance);
+                m_lastPathfindingTime = Time.time;
                 m_nextPoint = 0;
-                StartCoroutine(refreshPath());
+                
                
             }
             else m_waitingForPath = false;
@@ -195,10 +226,12 @@ namespace RunningTeyze
 
         bool checkPointReached(float width, float height, float groundTolerance)
         {
-            bool widthCheck = Mathf.Abs(m_character.groundPosition.x - m_pathToFollow[m_nextPoint].x) <= width * 0.5f;
-            bool heightCheck = Mathf.Abs(m_character.groundPosition.y - groundTolerance + height - m_pathToFollow[m_nextPoint].y) <= height + groundTolerance;
+            bool requiresGrounded = m_pathToFollow[m_nextPoint].jump;
+            bool groundCheck = requiresGrounded ? m_character.isGrounded : true;
+            bool widthCheck = Mathf.Abs(m_character.groundPosition.x - m_pathToFollow[m_nextPoint].point.x) <= width * 0.5f;
+            bool heightCheck = Mathf.Abs(m_character.groundPosition.y - groundTolerance + height - m_pathToFollow[m_nextPoint].point.y) <= height + groundTolerance;
 
-            return widthCheck && heightCheck;
+            return widthCheck && heightCheck && groundCheck;
         }
 
         IEnumerator JumpWithDelay()

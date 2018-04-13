@@ -13,6 +13,11 @@ namespace RunningTeyze
         public Vector2Int parent;
     }
 
+    public struct AStarPoint
+    {
+        public Vector2 point;
+        public bool jump;
+    }
     public enum ASTAR_DIRECTION
     {
         LEFT = 0x01,
@@ -29,8 +34,10 @@ namespace RunningTeyze
         Dictionary<Vector2Int, AStarNode> m_open;
         
         Dictionary<Vector2Int, AStarNode> m_closed;
-        List<Vector2> m_path;
+        List<AStarPoint> m_path;
         List<Vector2> m_rawPath;
+
+        public Vector2 realStart;
 
         public AStar(Tilemap map)
         {
@@ -38,7 +45,7 @@ namespace RunningTeyze
             this.m_map = map;
             m_open = new Dictionary<Vector2Int, AStarNode>();
             m_closed = new Dictionary<Vector2Int, AStarNode>();
-            m_path = new List<Vector2>();
+            m_path = new List<AStarPoint>();
             m_rawPath = new List<Vector2>();
         }
 
@@ -46,10 +53,9 @@ namespace RunningTeyze
         {
             m_open.Clear();
             m_closed.Clear();
-            m_path.Clear();
         }
 
-        public Vector2[] FindPath(Vector2 startF, Vector2 targetF, float jumpDistance)
+        public AStarPoint[] FindPath(Vector2 startF, Vector2 targetF, float jumpDistance)
         {
             int maxUpwardsTilesAllowed = (int)(jumpDistance / m_map.layoutGrid.cellSize.x);
 
@@ -61,8 +67,7 @@ namespace RunningTeyze
 
             AStarNode n = new AStarNode();
             m_open.Clear();
-            m_closed.Clear();
-            m_path.Clear();
+            m_closed.Clear();;
 
             for (int attempt = 0; attempt < 1; attempt++)
             {
@@ -90,7 +95,7 @@ namespace RunningTeyze
 
                     if (n.pos == target)
                     {
-                        Vector2[] result =  makePath(start, target,jumpDistance);
+                        AStarPoint[] result =  makePath(start, target,jumpDistance);
                         if (result == null)
                         {
                             clearNeighbours(m_closed[start]);
@@ -158,10 +163,10 @@ namespace RunningTeyze
                 m_closed.Remove(t);
             }
         }
-        Vector2[] makePath(Vector2Int start, Vector2Int target, float jumpDistance)
+        AStarPoint[] makePath(Vector2Int start, Vector2Int target, float jumpDistance)
         {
             m_rawPath.Clear();
-            m_path.Clear();
+       
             AStarNode n = m_closed[target];
             Vector3Int pos3 = new Vector3Int(n.pos.x, n.pos.y, 0);
             Vector2 realPos = m_map.GetCellCenterWorld(pos3);
@@ -188,10 +193,19 @@ namespace RunningTeyze
         bool clearPath(float jumpDistance)
         {
             int max = m_rawPath.Count - 1;
+            m_path.Clear();
             for (int i = 0; i <m_rawPath.Count; i++)
             {
                 if (i == 0 || i == max)
-                    m_path.Add(m_rawPath[max - i]);
+                {
+                    realStart = m_rawPath[max];
+                    int layerMask = (1 << LayerMask.NameToLayer("Ground"));
+                    AStarPoint p = new AStarPoint();
+                    p.point = m_rawPath[max - i];
+                    p.point = Physics2D.Raycast(p.point, Vector2.down * 10.0f).point;
+                    p.jump = false;
+                    m_path.Add(p);
+                }
                 else if (i > 0 && i < max)
                 {
                     Vector2 a = m_rawPath[max - i] - m_rawPath[max - (i - 1)];
@@ -199,16 +213,20 @@ namespace RunningTeyze
 
                     if (Mathf.Abs(Vector2.Dot(a, b)) < 0.01f)
                     {
-                        m_path.Add(m_rawPath[max - i]);
-                        if(m_path.Count > 2)
+                        AStarPoint p = new AStarPoint();
+                        p.point = m_rawPath[max - i];
+                        
+                        
+                        if (m_path.Count > 1)
                         {
                             int j = m_path.Count - 1;
-                            Vector2 v1 = m_path[j - 1] - m_path[j - 2];
-                            Vector2 v2 = m_path[j] - m_path[j - 1];
+                            Vector2 v1 = m_path[j].point - m_path[j-1].point;
+                            Vector2 v2 = p.point - m_path[j].point;
 
                             float dot = Vector2.Dot(v2, Vector2.right);
                             if (Mathf.Approximately(dot, 0.0f))
                             {
+                                p.jump = false;
                                 /*
                                 if(v2.y > 0.0f && v2.y > jumpDistance)
                                 {
@@ -221,13 +239,16 @@ namespace RunningTeyze
                             else
                             {
                                 int layerMask = (1 << LayerMask.NameToLayer("Ground"));
-                                m_path[j] = Physics2D.Raycast(m_path[j], Vector2.down, 5.0f, layerMask).point;
+                                p.point = Physics2D.Raycast(p.point, Vector2.down, 5.0f, layerMask).point;
+                                p.jump = true;
                             }
                         }
+
+                        m_path.Add(p);
                     }
                 }
             }
-            drawDebug(Color.green);
+
             return true;
         }
 
@@ -271,15 +292,16 @@ namespace RunningTeyze
             return offset;
         }
 
-        void drawDebug(Color color)
+        public void DrawDebug(Color color)
         {
             for (int i = 0; i < m_path.Count; i++)
             {
                 if (m_path.Count == 1)
-                    Debug.DrawRay(m_path[0], Vector2.up, color,3.0f);
+                    Debug.DrawRay(m_path[0].point, Vector2.up, color);
                 else if (i < m_path.Count - 1)
-                    Debug.DrawLine(m_path[i], m_path[i + 1], color, 3.0f);
+                    Debug.DrawLine(m_path[i].point, m_path[i + 1].point, color);
             }
+            
         }
 
       

@@ -31,5 +31,7 @@ namespace RunningTeyze.UI.HUD
             float ratio = hp.health / hp.maxHealth;
             m_progressBar.SetCutoutValue(ratio);
         }
+
+
     }
 }

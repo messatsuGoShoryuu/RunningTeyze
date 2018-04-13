@@ -11,40 +11,40 @@ namespace RunningTeyze
     {
         #region PRIVATE_MEMBER_Refs
         //GameObject References
-        Rigidbody2D m_rigidBody;
-        BoxCollider2D m_collider;
-        Animator m_animator;
-        CharacterProps m_props;
+        protected Rigidbody2D m_rigidBody;
+        protected BoxCollider2D m_collider;
+        protected Animator m_animator;
+        protected CharacterProps m_props;
         public CharacterProps props { get { return m_props; } }
         #endregion
 
         #region INSPECTOR
         [Header("Movement Properties")]
         [SerializeField]
-        float m_runSpeed = 5.0f;
+        protected float m_runSpeed = 5.0f;
 
         [SerializeField]
-        float m_jumpVelocity = 4.0f;
+        protected float m_jumpVelocity = 4.0f;
 
         [Header("Ground Normal Following")]
         [SerializeField]
-        bool m_followGroundNormals = true;
+        protected bool m_followGroundNormals = true;
         [SerializeField]
         float m_maxSlopeAngle = 45.0f;
         [SerializeField]
-        float m_minimumTranslationDistance = 0.5f;
+        protected   float m_minimumTranslationDistance = 0.5f;
 
         [Header("Collision Properties")]
         [SerializeField]
-        float m_groundDetectionRadius = 0.3f;
+        protected float m_groundDetectionRadius = 0.3f;
 
 
 
         [Header("Debug")]
         [SerializeField]
-        bool m_showContactNormals = true;
+        protected bool m_showContactNormals = true;
         [SerializeField]
-        bool m_showForwardVector = true;
+        protected bool m_showForwardVector = true;
         #endregion
 
         #region PRIVATE_MEMBER_Movement
@@ -53,21 +53,21 @@ namespace RunningTeyze
         Vector2 m_forwardMovementVector;
 
         //Cache stuff for internal calculations
-        float m_defaultGravityScale = 3.0f;
-        float m_groundX;
+        protected float m_defaultGravityScale = 3.0f;
+        protected float m_groundX;
 
       
         //Ground checking
         [SerializeField]
-        bool m_isGrounded = false;
+        protected   bool m_isGrounded = false;
         public bool isGrounded { get { return m_isGrounded; } }
-        bool m_proximityChecked = false;
+        protected bool m_proximityChecked = false;
         
         //Used to prevent going to "grounded" state right after a jump
         float m_jumpTimeStamp = 0.0f;
 
         //Positioning
-        bool m_faceRight = true;
+        protected bool m_faceRight = true;
         public Vector2 groundPosition { get { return new Vector2(m_collider.bounds.center.x, m_collider.bounds.min.y); } }
 
         //Contact Cache to check if we are grounded
@@ -84,7 +84,7 @@ namespace RunningTeyze
 
         #region INIT
         // Use this for initialization
-        void Start()
+        protected   void Start()
         {
             m_rigidBody = GetComponent<Rigidbody2D>();
             m_rigidBody.isKinematic = false;
@@ -95,7 +95,7 @@ namespace RunningTeyze
             m_contactCache = new ContactPoint2D[6];
         }
 
-        private void OnEnable()
+        protected void OnEnable()
         {
             if (m_rigidBody != null)
             {
@@ -105,7 +105,7 @@ namespace RunningTeyze
             if (m_animator != null) m_animator.enabled = true;
         }
 
-        private void OnDisable()
+        protected void OnDisable()
         {
             if (m_rigidBody != null)
             {
@@ -179,20 +179,20 @@ namespace RunningTeyze
 
         #region PRIVATE_Movement
         //HELPERS
-        void setVelX(float value)
+        protected void setVelX(float value)
         {
             Vector2 vel = m_rigidBody.velocity;
             vel.x = value;
             m_rigidBody.velocity = vel;
         }
 
-        void setVelY(float value)
+        protected void setVelY(float value)
         {
             Vector2 vel = m_rigidBody.velocity;
             vel.y = value;
             m_rigidBody.velocity = vel;
         }
-        
+
         void checkGround()
         {
             //Cache info 

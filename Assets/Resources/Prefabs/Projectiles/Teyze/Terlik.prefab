@@ -124,7 +124,15 @@ MonoBehaviour:
   m_lifeTime: 3
   m_destroyType: 1
   m_channel: 4
-  m_damage: 10
+  m_damage:
+    damage: 1
+    knockbackVelocity: 0
+    stunSeconds: 0
+    tickCooldown: 0
+    tickCount: 0
+    AOERadius: 0
+    hitCount: 0
+    ownerID: 0
 --- !u!198 &198059802727477568
 ParticleSystem:
   m_ObjectHideFlags: 1
