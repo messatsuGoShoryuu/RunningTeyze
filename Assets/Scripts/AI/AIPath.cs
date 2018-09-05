@@ -3,21 +3,24 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
+//This class is an attempt to make the AI character follow our character 
+//over platforms.
+
 namespace RunningTeyze
 {
     public class AIPath
     {
  
         static Tilemap s_tileMap;
-        static AStar s_aStar;
-        static AStar astar
+        static TilemapAStar s_aStar;
+        static TilemapAStar astar
         {
             get
             {
                 if (s_aStar == null)
                 {
                     if (s_tileMap == null) s_tileMap = GameObject.FindObjectOfType<Tilemap>();
-                    s_aStar = new AStar(s_tileMap);
+                    s_aStar = new TilemapAStar(s_tileMap);
                 }
                 return s_aStar;
             }
@@ -55,7 +58,7 @@ namespace RunningTeyze
         public static Vector2 realStart { get { return astar.realStart; } }
 
 
-         public static AStarPoint[] GetJumpingPoints(Vector2 startPosition,
+         public static TilemapAstarPoint[] GetJumpingPoints(Vector2 startPosition,
             Vector2 target, float jumpDistance)
         {
             return astar.FindPath(startPosition, target, jumpDistance);

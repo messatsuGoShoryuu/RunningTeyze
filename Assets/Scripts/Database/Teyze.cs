@@ -9,7 +9,7 @@ namespace RunningTeyze
         public string name;
         public float wealth;
         public float salary;
-        public float damageModifier;
+        public DamageModifier damageModifier;
         public float resistance;
         public float weight;
         public float speed;
@@ -24,6 +24,7 @@ namespace RunningTeyze
     {
         public static Dictionary<string, TeyzeProps> s_props;
         public static Dictionary<string, Teyze> s_teyzeInstances;
+
         public static void Init()
         {
             s_teyzeInstances = new Dictionary<string, Teyze>();
@@ -42,9 +43,11 @@ namespace RunningTeyze
 
                 TeyzeProps props = new TeyzeProps();
                 props.name = character[0];
+
+                DamageModifier mod = new DamageModifier();
                 float.TryParse(character[1], out props.wealth);
                 float.TryParse(character[2], out props.salary);
-                float.TryParse(character[3], out props.damageModifier);
+                float.TryParse(character[3], out mod.damageModifier);
                 float.TryParse(character[4], out props.resistance);
                 float.TryParse(character[5], out props.weight);
                 float.TryParse(character[6], out props.speed);
@@ -52,6 +55,9 @@ namespace RunningTeyze
                 float.TryParse(character[8], out props.maxHealth);
                 float.TryParse(character[9], out props.reputation);
                 float.TryParse(character[10], out props.cooking);
+
+                mod.celerityModifier = 1.0f;
+                props.damageModifier = mod;
 
                 props.recipes = new List<string>();
                 for(int j = 0; j<recipes.Length;j++)
@@ -95,8 +101,8 @@ namespace RunningTeyze
         float m_salary;
         public float salary { get { return m_salary; } }
 
-        float m_damageModifier;
-        public float damageModifier { get { return m_damageModifier; } }
+        DamageModifier m_damageModifier;
+        public DamageModifier damageModifier { get { return m_damageModifier; } }
 
         float m_resistance;
         public  float resistance { get { return m_resistance; } }
@@ -202,7 +208,7 @@ namespace RunningTeyze
         }
 
         public bool BuyIngredient(float cost, Ingredient ingredient, float amount)
-        {
+        {        
             if (m_wealth < cost) return false;
             m_wealth -= cost;
 

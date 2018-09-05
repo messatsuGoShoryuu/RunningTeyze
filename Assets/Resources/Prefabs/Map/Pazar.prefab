@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 212415589375532338}
   - component: {fileID: 61968022242946550}
   - component: {fileID: 114225830896147154}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Pazar
   m_TagString: Untagged
   m_Icon: {fileID: 0}

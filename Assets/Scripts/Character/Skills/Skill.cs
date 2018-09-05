@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//A skill is any ability a character can do. It could be firing projectiles or 
+//lifting huge boulders.
+
 namespace RunningTeyze
 {
     public class Skill : MonoBehaviour
@@ -9,7 +12,7 @@ namespace RunningTeyze
         
         protected Character m_character;
 
-        void Start()
+        protected void Start()
         {
             m_character = GetComponent<Character>();
         }

@@ -37,7 +37,7 @@ namespace RunningTeyze
 
     public class Event_PlayerIngredientBought : BaseEventData
     {
-        public  Event_PlayerIngredientBought(Ingredient ingredient, float kg)
+        public Event_PlayerIngredientBought(Ingredient ingredient, float kg)
         {
             this.ingredient = ingredient;
             this.kg = kg;
@@ -45,7 +45,7 @@ namespace RunningTeyze
         public Ingredient ingredient;
         public float kg;
     }
-    
+
     public class Event_PlayerStateChanged : BaseEventData { }
 
     public class Event_RecipeUIOnRecipeHovered : BaseEventData
@@ -74,6 +74,69 @@ namespace RunningTeyze
             this.recipe = recipe;
         }
         public Recipe recipe;
+    }
+
+    public class Event_LevelTeyzeLoaded : BaseEventData
+    {
+        public Event_LevelTeyzeLoaded(CharacterProps props)
+        {
+            this.props = props;
+        }
+
+        public CharacterProps props;
+    }
+
+    public class Event_CurrentTeyzeChanged : BaseEventData
+    {
+        public Event_CurrentTeyzeChanged(Teyze newTeyze, Teyze oldTeyze)
+        {
+            this.newTeyze = newTeyze;
+            this.oldTeyze = oldTeyze;
+        }
+
+        public Teyze newTeyze;
+        public Teyze oldTeyze;
+    }
+
+    public class Event_DistrictNeighborhoodSelected : BaseEventData
+    {
+        public Event_DistrictNeighborhoodSelected(DistrictNeighborhood neighborhood)
+        {
+            this.neighborhood = neighborhood;
+        }
+
+        public DistrictNeighborhood neighborhood;
+
+    }
+
+    public class Event_DistrictNavigationInitialized : BaseEventData
+    {
+        public Event_DistrictNavigationInitialized(DistrictNavigationItem[] items)
+        {
+            this.items = items;
+        }
+
+        public DistrictNavigationItem[] items;
+    }
+
+    public class Event_DistrictNeighborhoodUnlocked : BaseEventData
+    {
+        public Event_DistrictNeighborhoodUnlocked(DistrictNeighborhood neighborhood)
+        {
+            this.neighborhood = neighborhood;
+        }
+
+        public DistrictNeighborhood neighborhood;
+    }
+
+    public class Event_DistrictNeighborhoodCompleted : BaseEventData
+    {
+        public Event_DistrictNeighborhoodCompleted(DistrictNeighborhood neighborhood)
+        {
+            this.neighborhood = neighborhood;
+        }
+
+        public DistrictNeighborhood neighborhood;
     }
 
 }

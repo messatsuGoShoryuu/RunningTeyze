@@ -7,23 +7,28 @@ namespace RunningTeyze.UI.HUD
     public class HitpointDisplayer : MonoBehaviour
     {
         [SerializeField]
-        CharacterProps m_props;
-        [SerializeField]
         ProgressBar m_progressBar;
 
         private void Start()
         {
-            float ratio = m_props.hitpoints.health / m_props.hitpoints.maxHealth;
-            m_progressBar.SetCutoutValue(ratio, true);
+            
         }
         private void OnEnable()
         {
-            m_props.OnHitpointsChanged += OnHitpointsChanged;
+            EventSystem.AddListener<Event_LevelTeyzeLoaded>(OnTeyzeLoaded);
         }
 
         private void OnDisable()
         {
-            m_props.OnHitpointsChanged -= OnHitpointsChanged;
+            EventSystem.RemoveListener<Event_LevelTeyzeLoaded>(OnTeyzeLoaded);
+        }
+
+        void OnTeyzeLoaded(Event_LevelTeyzeLoaded e)
+        {
+            e.props.OnHitpointsChanged += OnHitpointsChanged;
+
+            float ratio = e.props.hitpoints.health / e.props.hitpoints.maxHealth;
+            m_progressBar.SetCutoutValue(ratio, true);
         }
 
         void OnHitpointsChanged(Hitpoints hp)

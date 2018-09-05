@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//Damage information. Everything that can deal damage has an instance of this to 
+//describe its capabilities.
+
 namespace RunningTeyze
 {
     public enum DAMAGE_CHANNEL

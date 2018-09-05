@@ -23,12 +23,6 @@ namespace RunningTeyze.UI
 
         Recipe m_selectedRecipe;
 
-        // Use this for initialization
-        void Start()
-        {
-
-        }
-
         private void OnEnable()
         {
             Recipe[] recipes = GameState.currentTeyze.recipes;
@@ -41,6 +35,20 @@ namespace RunningTeyze.UI
 
             EventSystem.AddListener<Event_RecipeCooked>(OnCook);
             EventSystem.AddListener<Event_RecipeUIOnRecipeHovered>(OnRecipeHovered);
+            EventSystem.AddListener<Event_CurrentTeyzeChanged>(OnTeyzeChanged);
+        }
+
+        void OnTeyzeChanged(Event_CurrentTeyzeChanged e)
+        {
+            Utilities.DestroyTransformChildren(m_ownedRecipies.transform);
+            Utilities.DestroyTransformChildren(m_recipeIngredients.transform);
+
+            Recipe[] recipes = GameState.currentTeyze.recipes;
+
+            for (int i = 0; i < recipes.Length; i++)
+            {
+                addRecipe(recipes[i]);
+            }
         }
 
         private void OnDisable()
@@ -50,6 +58,7 @@ namespace RunningTeyze.UI
 
             EventSystem.RemoveListener<Event_RecipeCooked>(OnCook);
             EventSystem.RemoveListener<Event_RecipeUIOnRecipeHovered>(OnRecipeHovered);
+            EventSystem.RemoveListener<Event_CurrentTeyzeChanged>(OnTeyzeChanged);
         }
 
        void OnCook(Event_RecipeCooked e)

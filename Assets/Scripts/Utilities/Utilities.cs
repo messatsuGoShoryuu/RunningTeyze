@@ -47,5 +47,10 @@ namespace RunningTeyze
             for (int i = 0; i < tr.Count; i++)
                 GameObject.Destroy(tr[i].gameObject);
         }
+
+        public static bool IsFlagSet(int flags, int flag)
+        {
+            return ((flags & flag) == flag);
+        }
     }
 }

@@ -17,7 +17,9 @@ namespace RunningTeyze
             IngredientManager.Init();
             RecipeManager.Init();
             TeyzeManager.Init();
+            GameState.Init();
             GameState.SetCurrentTeyze("Nermin");
+            GameState.OwnTeyze("Seyhan");
             SceneManager.LoadSceneAsync(m_nextScene);
         }
 

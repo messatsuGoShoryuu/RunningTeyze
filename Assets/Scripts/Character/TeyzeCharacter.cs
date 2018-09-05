@@ -26,7 +26,7 @@ namespace RunningTeyze
             m_props.SetHitpoints(hp);
 
             DamageModifier dmgMod = new DamageModifier();
-            dmgMod.damageModifier = m_teyze.damageModifier;
+            dmgMod = m_teyze.damageModifier;
             m_props.SetDmgModifier(dmgMod);
 
             m_runSpeed = m_teyze.speed;

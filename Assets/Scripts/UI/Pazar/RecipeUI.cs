@@ -32,11 +32,21 @@ namespace RunningTeyze.UI
             Utilities.DestroyTransformChildren(m_shoppingList.transform);
             EventSystem.RemoveListener<Event_RecipeUIOnRecipeHovered>(OnRecipeHovered);
             EventSystem.RemoveListener<Event_AddToShoppingList>(OnAddedToShoppingList);
+            EventSystem.RemoveListener<Event_CurrentTeyzeChanged>(OnTeyzeChanged);
         }
         private void OnEnable()
         {
             EventSystem.AddListener<Event_RecipeUIOnRecipeHovered>(OnRecipeHovered);
             EventSystem.AddListener<Event_AddToShoppingList>(OnAddedToShoppingList);
+            EventSystem.AddListener<Event_CurrentTeyzeChanged>(OnTeyzeChanged);
+            Enable();
+        }
+
+        void OnTeyzeChanged(Event_CurrentTeyzeChanged e)
+        {
+            Utilities.DestroyTransformChildren(m_ownedIngredients.transform);
+            Utilities.DestroyTransformChildren(m_ownedRecipies.transform);
+            Utilities.DestroyTransformChildren(m_shoppingList.transform);
             Enable();
         }
 

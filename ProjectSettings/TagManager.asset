@@ -17,9 +17,9 @@ TagManager:
   - 
   - Projectile
   - Ground
-  - 
-  - 
-  - 
+  - Player
+  - LOS_Enemy
+  - NonPhysical
   - 
   - 
   - 

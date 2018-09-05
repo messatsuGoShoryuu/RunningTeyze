@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//Basic character with movement. Allows smooth movement on slopes and irregular 
+//surfaces.
+
 namespace RunningTeyze
 {
     [RequireComponent(typeof(Rigidbody2D))]
@@ -30,7 +33,7 @@ namespace RunningTeyze
         [SerializeField]
         protected bool m_followGroundNormals = true;
         [SerializeField]
-        float m_maxSlopeAngle = 45.0f;
+        protected float m_maxSlopeAngle = 45.0f;
         [SerializeField]
         protected   float m_minimumTranslationDistance = 0.5f;
 
@@ -68,6 +71,7 @@ namespace RunningTeyze
 
         //Positioning
         protected bool m_faceRight = true;
+        public bool faceRight { get { return m_faceRight; } }
         public Vector2 groundPosition { get { return new Vector2(m_collider.bounds.center.x, m_collider.bounds.min.y); } }
 
         //Contact Cache to check if we are grounded
@@ -122,7 +126,7 @@ namespace RunningTeyze
         #region PUBLIC_Movement
         public void MoveHorizontal(float normalizedValue)
         {
-            
+            if (m_rigidBody == null) return;
             if (normalizedValue > 0)
             {
                 m_faceRight = true;
@@ -181,6 +185,7 @@ namespace RunningTeyze
         //HELPERS
         protected void setVelX(float value)
         {
+            if (m_rigidBody == null) return;
             Vector2 vel = m_rigidBody.velocity;
             vel.x = value;
             m_rigidBody.velocity = vel;
@@ -188,6 +193,7 @@ namespace RunningTeyze
 
         protected void setVelY(float value)
         {
+            if (m_rigidBody == null) return;
             Vector2 vel = m_rigidBody.velocity;
             vel.y = value;
             m_rigidBody.velocity = vel;
@@ -319,6 +325,11 @@ namespace RunningTeyze
 
             float cos = Mathf.Cos(m_maxSlopeAngle);
             float minPenetration = Mathf.Infinity;
+
+            Vector2 d = Vector2.zero;
+
+            Vector2 n = Vector2.up;
+            Vector2 t = Vector2.right;
             if(leftHit.collider != null)
             {
                 float dot = Vector2.Dot(leftHit.normal, Vector2.up);
@@ -329,7 +340,19 @@ namespace RunningTeyze
                     
                     m_isGrounded = true;
                     m_proximityChecked = true;
-                    if (minPenetration > leftHit.distance) minPenetration = leftHit.distance;
+                    if (minPenetration > leftHit.distance)
+                    {
+                        minPenetration = leftHit.distance;
+
+                        n = leftHit.normal;
+                        //Compute m_forwardMovementVector
+                        t = new Vector2(-n.y, n.x);
+
+                        dot = Vector2.Dot(t, Vector2.right);
+                        m_forwardMovementVector = t * Mathf.Sign(dot) * transform.localScale.x;
+
+                        d = left - leftHit.point;
+                    }
                 }
             }
             if(rightHit.collider != null)
@@ -340,7 +363,19 @@ namespace RunningTeyze
                 {
                     m_isGrounded = true;
                     m_proximityChecked = true;
-                    if (minPenetration > rightHit.distance) minPenetration = rightHit.distance;
+                    if (minPenetration > rightHit.distance)
+                    {
+                        minPenetration = rightHit.distance;
+
+                        n = rightHit.normal;
+                        //Compute m_forwardMovementVector
+                        t = new Vector2(-n.y, n.x);
+
+                        dot = Vector2.Dot(t, Vector2.right);
+                        m_forwardMovementVector = t * Mathf.Sign(dot) * transform.localScale.x;
+
+                        d = right - rightHit.point;
+                    }
                 }
             }
 
@@ -350,6 +385,7 @@ namespace RunningTeyze
             if (m_isGrounded)
             {
                 transform.Translate(Vector2.down * minPenetration);
+                transform.Translate(t * Vector2.Dot(t,d));
             }
             
         }

@@ -59,7 +59,5 @@ namespace RunningTeyze.UI
             Debug.Log("obj.name = " + obj.name);
             if (m_selectedTab != null) Debug.Log("Selected tab = " + m_selectedTab.name);
         }
-
-
     }
 }

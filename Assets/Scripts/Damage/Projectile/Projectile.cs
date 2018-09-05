@@ -34,6 +34,8 @@ namespace RunningTeyze
 
         SFireProjectile m_owner;
 
+        public void SetCelerity(float celerity) { m_celerity = celerity; }
+
         // Use this for initialization
         void Start()
         {
@@ -84,12 +86,14 @@ namespace RunningTeyze
 
         private void OnTriggerEnter2D(Collider2D other)
         {
+            if (m_owner == null) return;
             DamageApplier applier = other.GetComponent<DamageApplier>();
 
             if(applier != null)
             {
                 float effectiveDmg = m_owner.dmgModifier * m_damage.damage;
-                applier.ApplyDamage(effectiveDmg);
+                if(applier.channel == m_channel)
+                    applier.ApplyDamage(effectiveDmg);
             }
 
             if (m_destroyType == PROJECTILE_DESTROY_TYPE.COLLISION)
@@ -100,6 +104,30 @@ namespace RunningTeyze
                     else gameObject.SetActive(false);
                 }
             }
+        }
+
+        public static float PredictCelerity(Vector2 origin, Vector2 destination, float angle, float gravity)
+        {
+            Vector2 d = destination - origin;
+            float b = Mathf.Abs(d.x) * Mathf.Abs(gravity);
+            float c = d.y * Mathf.Abs(gravity);
+            float w = angle;
+
+            float cos = Mathf.Cos(w);
+            float sin = Mathf.Sin(w);
+
+            float sec = 1.0f / cos;
+
+            float a = (b * b * sec) / (2.0f * (b * sin - c * cos));
+
+            return Mathf.Sqrt(a);
+        }
+
+        public static Vector2 PredictDirection(Vector2 origin, Vector2 destination, float celerity, float gravity)
+        {
+            Vector2 n = Vector2.zero;
+
+             return n;
         }
     }
 }

@@ -18,11 +18,18 @@ namespace RunningTeyze
         {
             OnStatsChanged(null);
             EventSystem.AddListener<Event_PlayerStateChanged>(OnStatsChanged);
+            EventSystem.AddListener<Event_CurrentTeyzeChanged>(OnTeyzeChanged);
         }
 
         private void OnDestroy()
         {
             EventSystem.RemoveListener<Event_PlayerStateChanged>(OnStatsChanged);
+            EventSystem.RemoveListener<Event_CurrentTeyzeChanged>(OnTeyzeChanged);
+        }
+
+        void OnTeyzeChanged(Event_CurrentTeyzeChanged e)
+        {
+            OnStatsChanged(null);
         }
 
         void OnStatsChanged(Event_PlayerStateChanged e)

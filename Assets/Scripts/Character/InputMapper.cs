@@ -92,7 +92,7 @@ namespace RunningTeyze
 
         public void Enable()
         {
-            if (m_pauseGameplay) Time.timeScale = 1.0f;
+            if (m_pauseGameplay) Time.timeScale = 0.0f;
             if (m_shouldActivateHost) gameObject.SetActive(true);
             enabled = true;
             for (int i = 0; i < m_affectedObjects.Length; i++)
@@ -101,7 +101,7 @@ namespace RunningTeyze
 
         public void Disable()
         {
-            if (m_pauseGameplay) Time.timeScale = 0.0f;
+            if (m_pauseGameplay) Time.timeScale = 1.0f;
             for (int i = 0; i < m_affectedObjects.Length; i++)
                 m_affectedObjects[i].enabled = false;
             if (m_shouldActivateHost) gameObject.SetActive(false);

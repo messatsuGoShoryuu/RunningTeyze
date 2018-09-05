@@ -2,14 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
+//The Pazar is the shop of the game. This is where we buy our ingredients.
 namespace RunningTeyze
 {
     public class Pazar : MonoBehaviour
     {
+        //Defines the rarity level of the items. A Pazar with a rarity of 0 will only sell items of rarity 0, but a Pazar with a rarity of 3 will sell items of rarity 0, 1, 2 and 3.
         [SerializeField]
         int m_rarity = 0;
 
+        //How cheap does this pazar sell its stuff?
         [SerializeField]
         float m_costMultiplier = 1.0f;
         public float costMultiplier { get { return m_costMultiplier; } }
@@ -26,7 +28,7 @@ namespace RunningTeyze
         public List<Ingredient> ingredients { get { return m_ingredients; } }
 
         List<GameObject> m_clientList;
-       
+
         // Use this for initialization
         void Start()
         {
@@ -48,17 +50,17 @@ namespace RunningTeyze
             List<Ingredient> fullList = IngredientManager.GetRandomIngredientList(m_rarity);
 
             int maxCount = Mathf.Min(m_maxIngredientType, fullList.Count);
-  
-            for(int i = 0; i<maxCount;i++)
+
+            for (int i = 0; i < maxCount; i++)
             {
                 m_ingredients.Add(fullList[i]);
             }
 
-         }
+        }
 
         void OnPazarRequest(Event_PazarRequested e)
         {
-            if(m_clientList.Contains(e.obj))
+            if (m_clientList.Contains(e.obj))
             {
                 if (e.isPlayer)
                     EventSystem.Dispatch(new Event_PazarShowUI(this));
@@ -68,16 +70,19 @@ namespace RunningTeyze
         void OnPlayerBuy(Event_PlayerIngredientBuyRequest e)
         {
             Ingredient ingredient = findIngredientByName(e.name);
-            GameState.currentTeyze.BuyIngredient(ingredient.cost * m_costMultiplier, ingredient, e.amount);
+            bool purchaseSucceeded = GameState.currentTeyze.BuyIngredient(ingredient.cost * m_costMultiplier * e.amount, ingredient, e.amount);
 
-            EventSystem.Dispatch(new Event_PlayerIngredientBought(ingredient, e.amount));
-            EventSystem.Dispatch(new Event_PlayerStateChanged());
+            if (purchaseSucceeded)
+            {
+                EventSystem.Dispatch(new Event_PlayerIngredientBought(ingredient, e.amount));
+                EventSystem.Dispatch(new Event_PlayerStateChanged());
+            }
         }
 
         Ingredient findIngredientByName(string name)
         {
             for (int i = 0; i < m_ingredients.Count; i++)
-                if (m_ingredients[i].name == name) return m_ingredients[i];
+                if (m_ingredients[i].name == name)return m_ingredients[i];
             return m_ingredients[0];
         }
 

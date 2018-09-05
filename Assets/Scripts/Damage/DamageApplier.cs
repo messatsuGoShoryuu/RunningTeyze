@@ -4,6 +4,8 @@ using UnityEngine;
 using System.Runtime.InteropServices;
 using System;
 
+//Applies damage to its owner character.
+
 namespace RunningTeyze
 {
     public class DamageApplier : MonoBehaviour
